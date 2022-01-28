@@ -92,7 +92,7 @@ docker swarm init
 
 This will set your server as both the manager and worker node by default.
 
-### Setting up Network Interface
+### Setting up a Network Interface
 
 To communitcate between the outside world and our swarm stack, we need to make a seperate network interface with an overlay driver and call this interface `web`. To do this run the following command: 
 
@@ -102,7 +102,9 @@ docker network create --driver overlay web
 
 ### Generating Secrets
 
-Secretes that you have to create
+For security reasons, we don't want to put sensitive data directly into our docker-compose file (or store it on our server). Instead the common practice is to use docker secrets which stores these securly and plugs them into containers when they're deployed. 
+
+These secrets are already setup in the docker-compose file, we just have to create them on the machine. The secrets that we have to create are:
 
 - `<domain>`.cert
 - `<domain>`.key
@@ -116,9 +118,20 @@ Secretes that you have to create
 
 **Note:** Currently photoprism does not support secrets for its admin password. This is has been submitted as a [feature request](https://github.com/photoprism/photoprism/issues/1987). For now you'll have to replace `<photoprism_admin_password>` with your intented password
 
+There are many ways to generate secrets. One way is to store your information inside of appropriately named text files and load the secret like so:
+
 ```bash
 docker secret create my-secret-name my-secrete-name.txt
 ```
+
+Or you can pip the information directly from the command line like so:
+
+```bash
+echo ***** | docker secret create my-secret-name -
+```
+
+There are a few security conerns though. If you're using files you'll want to remove them from the host machine and store them elsewhere. If you're piping from the command line you'll want to delete your bash history.
+
 
 ### Create folders
 
@@ -138,5 +151,5 @@ docker swarm deploy -c docker-compose.yml --with-registry-auth mycloud
 
 ## Performance Tips
 
-if you have a faster solid state drive, you can store the databases (change the volume bindings in the docker-compose file)
+if you have a faster solid state drive, you can store the databases on them instead of the slower NAS drives. This should make a big impact on loading times. You can do this by changing the volume bindings of the database services to point to folders on the solid state drive.
 
