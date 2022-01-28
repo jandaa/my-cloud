@@ -16,31 +16,31 @@ Here is a list of the different services that are deployed with this project. Fo
 
 Nextcloud is an open source alternative to google drive and iCloud. It stores and syncs your files accross devices and allows you to easily access them in one central place anywhere in the world on any device. Try it out for yourself with this [demo](https://try.nextcloud.com/).
 
-![Alt text](docs/media/nextcloud.png "Nextcloud Demo")
+![Alt text](doc/nextcloud.png "Nextcloud Demo")
 
 ### [Photoprism](https://photoprism.app/)
 
 Photoprism is an open source alternative to google photos and iCloud photos. It has a really clean interface and loads extremely quickly. It also supports auto captioning and face recognition. It is by far the best open source photo solution I have seen yet and is actively being developed. Try it out for yourself with this [demo](https://demo.photoprism.app)
 
-![Alt text](docs/media/photoprism.png "Photoprism Demo")
+![Alt text](doc/photoprism.png "Photoprism Demo")
 
 ### [Jellyfin](https://jellyfin.org/)
 
 Jellyfin is an open source alternative to video streaming services such netflix or Plex or Kodi. It allows you to store and stream your own personal media. Try it out for yourself with this [demo](https://demo.jellyfin.org/stable)
 
-![Alt text](docs/media/jellyfin.png "Jellyfin Demo")
+![Alt text](doc/jellyfin.png "Jellyfin Demo")
 
 ### [Wordpress](https://wordpress.org/)
 
 Wordpress is one of the most popular content management platforms for websites. Its great for building personal or corporate websites without having to get into web development.
 
-![Alt text](docs/media/wordpress.png "Wordpress Demo")
+![Alt text](doc/wordpress.png "Wordpress Demo")
 
 ### [Nginx](https://nginx.org/en/)
 
 Nginx is an HTTP server that can host websites and also act as a reverse proxy. In this projet, I use it as a way to host read only files that are viewable in the browser and also fetchable using commong commands like `wget` in linux.
 
-![Alt text](docs/media/nginx.png "Nginx Demo")
+![Alt text](doc/nginx.png "Nginx Demo")
 
 ## Setup
 
@@ -52,7 +52,7 @@ This project assumes that you're using Cloudflare as your DNS provider. This is 
 
 Once your domain has been added to Cloudflare, you'll have to generate new CNAME records with the following subdomains: www, drive, photos, watch, files. It should look like this:
 
-![Alt text](docs/media/cloudflare.png "DNS setup")
+![Alt text](doc/cloudflare.png "DNS setup")
 
 **Note:** that it may take some time for these settings to propogate. Sometimes this takes as long as a whole day.
 
@@ -64,7 +64,7 @@ Go to the SSL/TLS tab and set your encrption mode to **Full (strict)**. Then go 
 
 To enable Dynamic DNS updates, we will use the cloudflare web api. For this you just need to get your api key. To do this, go to your cloudflare dashboard, in the top right click on the account icon, then on **My Profile**. Go to the **API Tokens** tab and click **Create Token**. Name it cloudflare-ddns and set the permissions to the following:
 
-![Alt text](docs/media/cloudflare_api_token.png "Cloudflare API token")
+![Alt text](doc/cloudflare_api_token.png "Cloudflare API token")
 
 Copy this key to a textfile called `cloudflare_api_key` and keep it somewhere safe for now.
 
