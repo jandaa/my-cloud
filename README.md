@@ -8,6 +8,8 @@ Setting up a server is as easy as building a cheap desktop computer or using an 
 
 Additionally, you'll have to purchase a domain name and point it to your home IP. This template heavily relies on using [Cloudflare](https://www.cloudflare.com) as your DNS provider but can easily be adapted to any other.
 
+I've developed this setup over an extended period. The purpose of this repo is to hopefully save others the time and pain it took me to get setup and running.
+
 ## Services
 
 Here is a list of the different services that are deployed with this project. For services which do not interest you, you can easily remove them from the project.
@@ -44,7 +46,7 @@ Nginx is an HTTP server that can host websites and also act as a reverse proxy. 
 
 ## Setup
 
-These step by step instructions are meant to allow anyone to quickly get setup on their 
+These step by step instructions are meant to allow anyone to quickly get setup on their personal servers. It assumes that linux is installed and that you have some minimal experience with networking and docker.
 
 ### Domain & DNS
 
@@ -68,13 +70,35 @@ To enable Dynamic DNS updates, we will use the cloudflare web api. For this you 
 
 Copy this key to a textfile called `cloudflare_api_key` and keep it somewhere safe for now.
 
+### Port Forwarding
+
+In order for the outside world to connect with your server, you have to forward ports from your router to your server. This can be done by logging into your router, going to port forwarding and forwarding the ports 443 and 80 to your server.
+
 ### Update Tags
 
-Its good practice to always set the versions of your services so that they do not change between deployments. Depending on when you come across this project, it maybe that the images are vastly out of date. If that is the case, look up the latest version and replace the version tags on the images in the docker-compose file in the format `image:\<tag\>`.
+Its good practice to always set the versions of your services so that they do not change between deployments. Depending on when you come across this project, it maybe that the images are vastly out of date. If that is the case, look up the latest version and replace the version tags on the images in the docker-compose file in the format `image:<tag>`.
 
 ### Set Your Domain
 
-Set your domain by replacing all `<domain>` and `<com>` with your domain in the form `<domain>.<com>`.
+Inside of the docker-compose.yml file, you'll need to do a find & replace to insert your own domain name. Replace the `<domain>` and `<com>` tags with your domain of the form `<domain>.<com>`.
+
+### Setting up Docker Swarm
+
+Although docker swarm comes standard with docker, it does not come initalized. To do this is easy, simply type the following command into any terminal:
+
+```bash
+docker swarm init
+```
+
+This will set your server as both the manager and worker node by default.
+
+### Setting up Network Interface
+
+To communitcate between the outside world and our swarm stack, we need to make a seperate network interface with an overlay driver and call this interface `web`. To do this run the following command: 
+
+```bash
+docker network create --driver overlay web
+```
 
 ### Generating Secrets
 
@@ -92,18 +116,25 @@ Secretes that you have to create
 
 **Note:** Currently photoprism does not support secrets for its admin password. This is has been submitted as a [feature request](https://github.com/photoprism/photoprism/issues/1987). For now you'll have to replace `<photoprism_admin_password>` with your intented password
 
-### Setting up Docker Swarm
-
-### Setting up Network Interface
+```bash
+docker secret create my-secret-name my-secrete-name.txt
+```
 
 ### Create folders
+
+We want all the data in our cloud to persist even when containers go down. This is accomplished using bind mounts in the docker-compose file. They mount folders in this directory to the inside of the containers. For this to work we have to make these directories. Fortunately I've included a convenince script that you can run:
 
 ```bash
 bash init.sh
 ```
 
-### Running
+### Run
 
+This is the last step. Congradualations for making it this far, this last step is by far the easiest and most rewarding (assuming everything else is functioning correctly). To bring up your new cloud, simply run the following:
+
+```bash
+docker swarm deploy -c docker-compose.yml --with-registry-auth mycloud
+```
 
 ## Performance Tips
 
