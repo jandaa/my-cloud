@@ -1,0 +1,172 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v2.6.0
+    networks:
+      - web
+    secrets:
+      - <domain>.cert
+      - <domain>.key
+    ports:
+      - 180:80
+      - 1443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik
+
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:latest
+    networks:
+      - web
+    secrets:
+      - cloudflare_api_key
+    environment:
+      - API_KEY_FILE=/run/secrets/cloudflare_api_key
+      - ZONE=<domain>.<com>
+      - PROXIED=true
+  
+  nextcloud:
+    image: nextcloud:23.0.0
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.nextcloud.rule=Host(`drive.<domain>.<com>`)
+      - traefik.http.routers.nextcloud.tls=true
+    secrets:
+      - nextcloud_db
+      - nextcloud_db_user
+      - nextcloud_db_password
+    volumes:
+      - ./nextcloud:/var/www/html
+    environment:
+      - POSTGRES_DB_FILE=/run/secrets/nextcloud_db
+      - POSTGRES_USER_FILE=/run/secrets/nextcloud_db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
+      - POSTGRES_HOST=nextcloud_db
+
+  nextcloud_db:
+    image: postgres:14.1
+    networks:
+      - web
+    secrets:
+      - nextcloud_db
+      - nextcloud_db_user
+      - nextcloud_db_password
+    volumes:
+      - ./nextcloud_db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/nextcloud_db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/nextcloud_db_password
+      - POSTGRES_DB_FILE=/run/secrets/nextcloud_db
+    
+  photoprism:
+    image: photoprism/photoprism:20220121
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.photoprism.rule=Host(`photos.<domain>.<com>`)
+      - traefik.http.routers.photoprism.tls=true
+    volumes:
+      - ./photoprism/originals:/photoprism/originals
+      - ./photoprism/storage:/photoprism/storage
+      - ./photoprism/import:/photoprism/import
+    environment:
+      PHOTOPRISM_SITE_URL: "https://photos.<domain>.<com>/"
+      PHOTOPRISM_ADMIN_PASSWORD: <photoprism_admin_password>
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.jellyfin.rule=Host(`watch.<domain>.<com>`)
+      - traefik.http.routers.jellyfin.tls=true
+    volumes:
+      - ./jellyfin/config:/config
+      - ./jellyfin/cache:/cache
+      - ./jellyfin/media:/media
+    environment:
+      JELLYFIN_PublishedServerUrl: "http://watch.<domain>.<com>"
+
+  wordpress:
+    image: wordpress:5.9.0
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.wordpress.rule=Host(`www.<domain>.<com>`)
+      - traefik.http.routers.wordpress.tls=true
+    networks:
+      - web
+    secrets:
+      - wordpress_db
+      - wordpress_db_user
+      - wordpress_db_password
+    environment:
+      WORDPRESS_DB_HOST: wordpress_db
+      WORDPRESS_DB_USER_FILE: /run/secrets/wordpress_db_user
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/wordpress_db_password
+      WORDPRESS_DB_NAME_FILE: /run/secrets/wordpress_db
+    volumes:
+      - ./wordpress:/var/www/html
+
+  wordpress_db:
+    image: mysql:5.7
+    networks:
+      - web
+    secrets:
+      - wordpress_db
+      - wordpress_db_user
+      - wordpress_db_password
+    environment:
+      MYSQL_DATABASE_FILE: /run/secrets/wordpress_db
+      MYSQL_USER_FILE: /run/secrets/wordpress_db_user
+      MYSQL_PASSWORD_FILE: /run/secrets/wordpress_db_password
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - ./wordpress_db:/var/lib/mysql
+
+  fileserver:
+    image: nginx:1.21
+    networks:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.fileserver.rule=Host(`files.<domain>.<com>`)
+      - traefik.http.routers.fileserver.tls=true
+    volumes:
+      - ./fileserver/server.conf:/etc/nginx/conf.d/default.conf
+      - ./fileserver/data:/etc/nginx/data
+
+networks:
+  web:
+    external: true
+
+secrets:
+  <domain>.cert:
+    external: true
+  <domain>.key:
+    external: true
+  cloudflare_api_key:
+    external: true
+  photoprism_admin_password2:
+    external: true
+  nextcloud_db:
+    external: true
+  nextcloud_db_user:
+    external: true
+  nextcloud_db_password:
+    external: true
+  wordpress_db:
+    external: true
+  wordpress_db_user:
+    external: true
+  wordpress_db_password:
+    external: true

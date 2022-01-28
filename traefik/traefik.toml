@@ -1,0 +1,23 @@
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+    [entryPoints.web.http.redirections.entryPoint]
+      to = "websecure"
+      scheme = "https"
+
+  [entryPoints.websecure]
+    address = ":443"
+
+[providers.docker]
+  exposedByDefault = false
+  watch = true
+  network = "web"
+
+[providers.file]
+    filename = "/etc/traefik/traefik_dynamic.toml"
+
+[accessLog]
+  filePath = "/access.log"
+
+[log]
+  filePath = "/traefik.log"

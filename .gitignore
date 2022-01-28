@@ -1,0 +1,7 @@
+fileserver/data/*
+jellyfin/
+nextcloud/
+nextcloud_db/
+photoprism/
+wordpress/
+wordpress_db/

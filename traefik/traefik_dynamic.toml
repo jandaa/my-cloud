@@ -1,0 +1,3 @@
+[[tls.certificates]]
+  certFile = "/run/secrets/<domain>.cert"
+  keyFile = "/run/secrets/<domain>.key"
