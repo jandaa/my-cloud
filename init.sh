@@ -1,0 +1,14 @@
+mkdir wordpress
+mkdir wordpress_db
+mkdir nextcloud
+mkdir nextcloud_db
+mkdir photoprism
+mkdir jellyfin
+cd jellyfin
+mkdir config
+mkdir cache
+mkdir media
+cd ../photoprism
+mkdir storage
+mkdir originals
+mkdir import
