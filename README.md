@@ -1,4 +1,4 @@
-# MyCloud
+# My Cloud
 
 This is a template of a personal cloud setup using docker swarm. It replaces many of the most common services cloud providers provide and can all be self hosted on your own personal home server.
 
